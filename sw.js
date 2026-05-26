@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cf-tracker-v2';
+const CACHE_NAME = 'cf-tracker-v3';
 const ASSETS = [
   './',
   './index.html',

@@ -284,11 +284,19 @@
     </nav>
 
     <script>
-		// Registrar el Service Worker para habilitar el modo PWA e instalación
+		// Registro dinámico de PWA adaptado para GitHub Pages
 		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('./sw.js')
-			.then(() => console.log('PWA: Service Worker Activado y Registrado'))
-			.catch(err => console.log('Error al registrar Service Worker:', err));
+			// Detecta automáticamente si estás en la raíz o en una subcarpeta de GitHub
+			const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+			const swPath = `${repoPath}sw.js`;
+
+			navigator.serviceWorker.register(swPath, { scope: repoPath })
+			.then((reg) => {
+				console.log('PWA: Service Worker registrado con éxito en el scope:', reg.scope);
+			})
+			.catch(err => {
+				console.error('PWA: Error al registrar el Service Worker:', err);
+			});
 		}
 		
         // Inicialización de la App

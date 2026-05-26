@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrossFit Tracker - Mamá</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 15px;
+            font-size: 18px;
+            padding-bottom: 90px; /* Espacio para la barra inferior */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            outline: none;
+            background-color: #fff;
+            -webkit-appearance: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .record-box {
+            background-color: #ecfdf5;
+            border: 2px dashed var(--accent);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Lista de historial adaptada para el botón borrar */
+        .history-list {
+            list-style: none;
+            margin-top: 15px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+            font-size: 0.95rem;
+            gap: 5px;
+        }
+
+        .history-data {
+            display: flex;
+            flex-grow: 1;
+            justify-content: space-between;
+            margin-right: 10px;
+        }
+
+        /* Botón chico para eliminar */
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-delete:hover {
+            background-color: var(--danger-hover);
+        }
+
+        /* BARRA DE NAVEGACIÓN INFERIOR */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background-color: #ffffff;
+            display: flex;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .tab-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            color: #6b7280;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background-color: #f0f4ff;
+            border-top: 4px solid var(--primary);
+        }
+
+        .tab-btn-icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏋️‍♀️ CrossFit Tracker</h1>
+    </header>
+
+    <div id="ejercicio1" class="tab-content active">
+        <div class="card">
+            <h2>Registrar Peso Muerto</h2>
+            <div class="form-group">
+                <label for="date1">Fecha:</label>
+                <input type="date" id="date1">
+            </div>
+            <div class="form-group">
+                <label for="weight1">Peso (kg):</label>
+                <input type="number" id="weight1" placeholder="Ej: 45" min="0" step="any">
+            </div>
+            <div class="form-group">
+                <label for="intensity1">Intensidad:</label>
+                <select id="intensity1"></select>
+            </div>
+            <button class="btn btn-primary" onclick="saveRecord('ejercicio1')">Guardar Entrenamiento</button>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-accent" onclick="getBestRecord('ejercicio1')">⭐ Ver Mayor Intensidad</button>
+            <div id="best-ejercicio1" class="record-box"></div>
+        </div>
+
+        <div class="card">
+            <h3>Historial de Peso Muerto</h3>
+            <ul id="list-ejercicio1" class="history-list"></ul>
+        </div>
+    </div>
+
+    <div id="ejercicio2" class="tab-content">
+        <div class="card">
+            <h2>Registrar Back Squat</h2>
+            <div class="form-group">
+                <label for="date2">Fecha:</label>
+                <input type="date" id="date2">
+            </div>
+            <div class="form-group">
+                <label for="weight2">Peso (kg):</label>
+                <input type="number" id="weight2" placeholder="Ej: 35" min="0" step="any">
+            </div>
+            <div class="form-group">
+                <label for="intensity2">Intensidad:</label>
+                <select id="intensity2"></select>
+            </div>
+            <button class="btn btn-primary" onclick="saveRecord('ejercicio2')">Guardar Entrenamiento</button>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-accent" onclick="getBestRecord('ejercicio2')">⭐ Ver Mayor Intensidad</button>
+            <div id="best-ejercicio2" class="record-box"></div>
+        </div>
+
+        <div class="card">
+            <h3>Historial de Back Squat</h3>
+            <ul id="list-ejercicio2" class="history-list"></ul>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="tab-btn active" id="btn-tab1" onclick="switchTab('ejercicio1')">
+            <span class="tab-btn-icon">💀</span>
+            <span>Peso Muerto</span>
+        </button>
+        <button class="tab-btn" id="btn-tab2" onclick="switchTab('ejercicio2')">
+            <span class="tab-btn-icon">🏋️‍♀️</span>
+            <span>Back Squat</span>
+        </button>
+    </nav>
+
+    <script>
+		// Registrar el Service Worker para habilitar el modo PWA e instalación
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('./sw.js')
+			.then(() => console.log('PWA: Service Worker Activado y Registrado'))
+			.catch(err => console.log('Error al registrar Service Worker:', err));
+		}
+		
+        // Inicialización de la App
+        window.addEventListener('DOMContentLoaded', () => {
+            const hoy = new Date();
+            const year = hoy.getFullYear();
+            const month = String(hoy.getMonth() + 1).padStart(2, '0');
+            const day = String(hoy.getDate()).padStart(2, '0');
+            const fechaFormateada = `${year}-${month}-${day}`;
+            
+            document.getElementById('date1').value = fechaFormateada;
+            document.getElementById('date2').value = fechaFormateada;
+            
+            populateIntensitySelect('intensity1');
+            populateIntensitySelect('intensity2');
+
+            updateHistoryList('ejercicio1');
+            updateHistoryList('ejercicio2');
+        });
+
+        function populateIntensitySelect(selectId) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '';
+            for (let i = 50; i <= 100; i += 5) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `${i}%`;
+                if (i === 80) opt.selected = true;
+                select.appendChild(opt);
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'ejercicio1') {
+                document.getElementById('btn-tab1').classList.add('active');
+            } else {
+                document.getElementById('btn-tab2').classList.add('active');
+            }
+        }
+
+        // Guardar registro (sin ventanas emergentes / alert)
+        function saveRecord(tabId) {
+            const suffix = tabId === 'ejercicio1' ? '1' : '2';
+            const dateInput = document.getElementById(`date${suffix}`).value;
+            const weightInput = parseFloat(document.getElementById(`weight${suffix}`).value);
+            const intensityInput = parseInt(document.getElementById(`intensity${suffix}`).value);
+
+            if (!dateInput || isNaN(weightInput) || isNaN(intensityInput)) {
+                return; // Failsafe silencioso si el campo está vacío
+            }
+
+            const newRecord = {
+                id: Date.now(),
+                date: dateInput,
+                weight: weightInput,
+                intensity: intensityInput
+            };
+
+            let records = JSON.parse(localStorage.getItem(tabId)) || [];
+            records.push(newRecord);
+            localStorage.setItem(tabId, JSON.stringify(records));
+
+            // Limpiar campo de peso de forma limpia
+            document.getElementById(`weight${suffix}`).value = '';
+
+            updateHistoryList(tabId);
+            document.getElementById(`best-${tabId}`).style.display = 'none';
+        }
+
+        // Renderizar la lista e integrar el botón individual para eliminar
+        function updateHistoryList(tabId) {
+            const listElement = document.getElementById(`list-${tabId}`);
+            listElement.innerHTML = '';
+            
+            let records = JSON.parse(localStorage.getItem(tabId)) || [];
+            
+            records.slice().reverse().forEach(rec => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                
+                const formattedDate = rec.date.split('-').reverse().join('/');
+                
+                // Estructura interna dividida: Datos a la izquierda, botón a la derecha
+                li.innerHTML = `
+                    <div class="history-data">
+                        <span>📅 <b>${formattedDate}</b></span>
+                        <span>🏋️‍♂️ <b>${rec.weight} kg</b></span>
+                        <span>🔥 <b>${rec.intensity}%</b></span>
+                    </div>
+                    <button class="btn-delete" onclick="deleteRecord('${tabId}', ${rec.id})">🗑️</button>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        // Eliminar un registro específico por su ID único
+        function deleteRecord(tabId, recordId) {
+            let records = JSON.parse(localStorage.getItem(tabId)) || [];
+            
+            // Filtrar y remover el elemento que coincida con el ID
+            records = records.filter(rec => rec.id !== recordId);
+            localStorage.setItem(tabId, JSON.stringify(records));
+            
+            // Recargar interfaz
+            updateHistoryList(tabId);
+            document.getElementById(`best-${tabId}`).style.display = 'none';
+        }
+
+        function getBestRecord(tabId) {
+            let records = JSON.parse(localStorage.getItem(tabId)) || [];
+            const displayBox = document.getElementById(`best-${tabId}`);
+
+            if (records.length === 0) {
+                displayBox.innerHTML = "<p style='color: #6b7280;'>Aún no hay entrenamientos registrados aquí.</p>";
+                displayBox.style.display = 'block';
+                return;
+            }
+
+            let best = records[0];
+
+            for (let i = 1; i < records.length; i++) {
+                if (records[i].intensity > best.intensity) {
+                    best = records[i];
+                } else if (records[i].intensity === best.intensity) {
+                    if (records[i].date > best.date) {
+                        best = records[i];
+                    } else if (records[i].date === best.date) {
+                        if (records[i].id > best.id) {
+                            best = records[i];
+                        }
+                    }
+                }
+            }
+
+            const formattedDate = best.date.split('-').reverse().join('/');
+            displayBox.innerHTML = `
+                <p style="font-weight: bold; color: #065f46; margin-bottom: 5px;">⭐ Mayor Intensidad Guardada:</p>
+                <p>📆 <b>Fecha:</b> ${formattedDate}</p>
+                <p>🏋️‍♂️ <b>Peso:</b> ${best.weight} kg</p>
+                <p>🔥 <b>Intensidad:</b> ${best.intensity}%</p>
+            `;
+            displayBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

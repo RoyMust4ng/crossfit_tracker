@@ -1,0 +1,16 @@
+{
+  "name": "CrossFit Tracker Mamá",
+  "short_name": "CF Tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/625/625363.png",
+      "sizes": "512px",
+      "type": "image/png"
+    }
+  ]
+}

@@ -4,8 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CrossFit Tracker - Mamá</title>
-    <link rel="manifest" href="manifest.json">
+    
+    <!-- Generamos el manifiesto de forma dinámica para evitar fallos de archivo en GitHub -->
+    <link id="manifest-placeholder" rel="manifest">
+    <script>
+        const myManifest = {
+            "name": "CrossFit Tracker Mamá",
+            "short_name": "CF Tracker",
+            "start_url": window.location.href, // Usa la URL exacta del repositorio actual
+            "display": "standalone",
+            "background_color": "#f3f4f6",
+            "theme_color": "#2563eb",
+            "orientation": "portrait",
+            "icons": [
+                {
+                    "src": "https://cdn-icons-png.flaticon.com/512/625/625363.png",
+                    "sizes": "512px",
+                    "type": "image/png"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(myManifest);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
+    </script>
+
     <meta name="theme-color" content="#2563eb">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/625/625363.png">
+    
     <style>
         :root {
             --bg-color: #f3f4f6;
@@ -31,7 +58,7 @@
             color: var(--text-color);
             padding: 15px;
             font-size: 18px;
-            padding-bottom: 90px; /* Espacio para la barra inferior */
+            padding-bottom: 90px;
         }
 
         header {
@@ -123,7 +150,6 @@
             display: none;
         }
 
-        /* Lista de historial adaptada para el botón borrar */
         .history-list {
             list-style: none;
             margin-top: 15px;
@@ -151,7 +177,6 @@
             margin-right: 10px;
         }
 
-        /* Botón chico para eliminar */
         .btn-delete {
             background-color: var(--danger);
             color: white;
@@ -161,14 +186,8 @@
             cursor: pointer;
             font-size: 1rem;
             font-weight: bold;
-            transition: background 0.2s;
         }
 
-        .btn-delete:hover {
-            background-color: var(--danger-hover);
-        }
-
-        /* BARRA DE NAVEGACIÓN INFERIOR */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -193,7 +212,6 @@
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -214,6 +232,7 @@
         <h1>🏋️‍♀️ CrossFit Tracker</h1>
     </header>
 
+    <!-- PESO MUERTO -->
     <div id="ejercicio1" class="tab-content active">
         <div class="card">
             <h2>Registrar Peso Muerto</h2>
@@ -243,6 +262,7 @@
         </div>
     </div>
 
+    <!-- BACK SQUAT -->
     <div id="ejercicio2" class="tab-content">
         <div class="card">
             <h2>Registrar Back Squat</h2>
@@ -272,6 +292,7 @@
         </div>
     </div>
 
+    <!-- BARRA INFERIOR -->
     <nav class="bottom-nav">
         <button class="tab-btn active" id="btn-tab1" onclick="switchTab('ejercicio1')">
             <span class="tab-btn-icon">💀</span>
@@ -284,23 +305,26 @@
     </nav>
 
     <script>
-		// Registro dinámico de PWA adaptado para GitHub Pages
-		if ('serviceWorker' in navigator) {
-			// Detecta automáticamente si estás en la raíz o en una subcarpeta de GitHub
-			const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-			const swPath = `${repoPath}sw.js`;
-
-			navigator.serviceWorker.register(swPath, { scope: repoPath })
-			.then((reg) => {
-				console.log('PWA: Service Worker registrado con éxito en el scope:', reg.scope);
-			})
-			.catch(err => {
-				console.error('PWA: Error al registrar el Service Worker:', err);
-			});
-		}
-		
-        // Inicialización de la App
+        // Inicialización
         window.addEventListener('DOMContentLoaded', () => {
+            // REGISTRO INLINE DEL SERVICE WORKER (Evita fallos de subcarpeta en GitHub)
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'cf-v4';
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                    });
+                `;
+                const swBlob = new Blob([swCode], {type: 'application/javascript'});
+                const swURL = URL.createObjectURL(swBlob);
+                
+                navigator.serviceWorker.register(swURL, {scope: './'})
+                .then(() => console.log("PWA unificada activa"))
+                .catch(err => console.log("SW Error:", err));
+            }
+
             const hoy = new Date();
             const year = hoy.getFullYear();
             const month = String(hoy.getMonth() + 1).padStart(2, '0');
@@ -332,9 +356,7 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
             document.getElementById(tabId).classList.add('active');
-            
             if (tabId === 'ejercicio1') {
                 document.getElementById('btn-tab1').classList.add('active');
             } else {
@@ -342,16 +364,13 @@
             }
         }
 
-        // Guardar registro (sin ventanas emergentes / alert)
         function saveRecord(tabId) {
             const suffix = tabId === 'ejercicio1' ? '1' : '2';
             const dateInput = document.getElementById(`date${suffix}`).value;
             const weightInput = parseFloat(document.getElementById(`weight${suffix}`).value);
             const intensityInput = parseInt(document.getElementById(`intensity${suffix}`).value);
 
-            if (!dateInput || isNaN(weightInput) || isNaN(intensityInput)) {
-                return; // Failsafe silencioso si el campo está vacío
-            }
+            if (!dateInput || isNaN(weightInput) || isNaN(intensityInput)) return;
 
             const newRecord = {
                 id: Date.now(),
@@ -364,27 +383,20 @@
             records.push(newRecord);
             localStorage.setItem(tabId, JSON.stringify(records));
 
-            // Limpiar campo de peso de forma limpia
             document.getElementById(`weight${suffix}`).value = '';
-
             updateHistoryList(tabId);
             document.getElementById(`best-${tabId}`).style.display = 'none';
         }
 
-        // Renderizar la lista e integrar el botón individual para eliminar
         function updateHistoryList(tabId) {
             const listElement = document.getElementById(`list-${tabId}`);
             listElement.innerHTML = '';
-            
             let records = JSON.parse(localStorage.getItem(tabId)) || [];
             
             records.slice().reverse().forEach(rec => {
                 const li = document.createElement('li');
                 li.className = 'history-item';
-                
                 const formattedDate = rec.date.split('-').reverse().join('/');
-                
-                // Estructura interna dividida: Datos a la izquierda, botón a la derecha
                 li.innerHTML = `
                     <div class="history-data">
                         <span>📅 <b>${formattedDate}</b></span>
@@ -397,15 +409,10 @@
             });
         }
 
-        // Eliminar un registro específico por su ID único
         function deleteRecord(tabId, recordId) {
             let records = JSON.parse(localStorage.getItem(tabId)) || [];
-            
-            // Filtrar y remover el elemento que coincida con el ID
             records = records.filter(rec => rec.id !== recordId);
             localStorage.setItem(tabId, JSON.stringify(records));
-            
-            // Recargar interfaz
             updateHistoryList(tabId);
             document.getElementById(`best-${tabId}`).style.display = 'none';
         }
@@ -421,7 +428,6 @@
             }
 
             let best = records[0];
-
             for (let i = 1; i < records.length; i++) {
                 if (records[i].intensity > best.intensity) {
                     best = records[i];
@@ -429,9 +435,7 @@
                     if (records[i].date > best.date) {
                         best = records[i];
                     } else if (records[i].date === best.date) {
-                        if (records[i].id > best.id) {
-                            best = records[i];
-                        }
+                        if (records[i].id > best.id) best = records[i];
                     }
                 }
             }
